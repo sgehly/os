@@ -7,7 +7,7 @@ This project is written in C.
 ## Installation
 make
 ## Usage
-./maze <number of rats> <number of rooms>
+./maze (number of rats) (number of rooms)
 ## History
 TODO: Write history
 ## Credits
