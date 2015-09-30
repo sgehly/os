@@ -1,6 +1,6 @@
 <snippet>
-  <content><![CDATA[
-# ${1:CS3013 Project 3}
+  <content>
+# CS3013 Project 3
 This project introduces thread coordination through building a maze for "rat" threads to traverse.
 The maze consists of rooms with different capacity limits that take different amounts of time to traverse.
 This project is written in C.
@@ -34,7 +34,6 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
-
-]]></content>
+</content>
   <tabTrigger>readme</tabTrigger>
 </snippet>
