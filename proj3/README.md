@@ -8,8 +8,6 @@ This project is written in C.
 make
 ## Usage
 ./maze (number of rats) (number of rooms)
-## History
-TODO: Write history
 ## Credits
 Written by: Jacob Hackett
 ## License
