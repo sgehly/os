@@ -6,7 +6,7 @@
 #define MAXRATS 5
 #define MAXROOMS 8
 
-#define VERBOSE 0
+#define VERBOSE 1
 #define DEBUG 1
 
 struct vbentry
@@ -32,6 +32,7 @@ int startTime;
 
 struct Room roomArray[MAXROOMS];
 sem_t semArray[MAXROOMS];
+sem_t semArray2[MAXROOMS];
 int visitorCount[MAXROOMS] = {0};
 
 //function prototypes
@@ -49,20 +50,12 @@ void * rat(void * x)
 	for(i = 0; i < rooms; i++)
 	{
 		if(VERBOSE)
-		{
 			printf("In room number %d\n", roomArray[i].number);
-			printf("Delaying %d seconds.\n", roomArray[i].timeDelay);
-		}
-
-		//sem_wait(&semArray[i]);
-
-		//sem_post(&semArray[i]);
-
+		
 		int tEntry = (int)(time(NULL) - startTime);
-		//sleep(roomArray[i].timeDelay);
 
 		//try to enter room
-		//EnterRoom(*((int*)(&x)), i);
+		EnterRoom(*((int*)(&x)), i);
 		
 		//leave room -- leaves entry in visitor book
 		LeaveRoom(*((int*)(&x)), i, tEntry);
@@ -75,15 +68,15 @@ void EnterRoom(int iRat, int iRoom)
 		printf("Decrementing semaphore %d for rat %d.\n", iRoom, iRat);
 
 	sem_wait(&semArray[iRoom]);
+	sem_post(&semArray2[iRoom]);
 
 	if(DEBUG)
 		printf("Sleeping in room %d for rat %d.\n", iRoom, iRat);
 
 	sleep(roomArray[iRoom].timeDelay);
+
 	if(DEBUG)
 		printf("Incrementing semaphore %d for rat %d.\n", iRoom, iRat);
-
-	sem_post(&semArray[iRoom]);
 }
 
 void LeaveRoom(int iRat, int iRoom, int tEnter)
@@ -97,6 +90,9 @@ void LeaveRoom(int iRat, int iRoom, int tEnter)
 	//store entry in the book and increment total visitors to this room
 	roomVB[iRoom][visitorCount[iRoom]] = *visitor;
 	visitorCount[iRoom]++;
+
+	sem_post(&semArray[iRoom]);
+	sem_wait(&semArray2[iRoom]);
 }
 
 
@@ -185,7 +181,9 @@ int main(int argc, char * argv[])
 	for(j = 0; j < rooms; j++)
 	{
 		sem_t semaphore;
+		sem_t semaphore2;
 		semArray[j] = semaphore;
+		semArray2[j] = semaphore2;
 	}
 
 	//initialize the semaphores in the array with initial value matching the capacity of each room
@@ -194,6 +192,7 @@ int main(int argc, char * argv[])
 		if(VERBOSE)
 			printf("Initializing a semaphore for room %d with value %d\n", j, roomArray[j].capacity);
 		sem_init(&semArray[j], roomArray[j].capacity, 0);
+		sem_init(&semArray2[j], 0, 0);
 	}
 
 	//creates and stores rat pthread_ts in an array
