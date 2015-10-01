@@ -4,12 +4,15 @@
 #include <semaphore.h>
 #include <string.h>
 
+//max rats and rooms
 #define MAXRATS 5
 #define MAXROOMS 8
 
+//used for verbose and debugging prints
 #define VERBOSE 1
 #define DEBUG 0
 
+//entry in the visitor book
 struct vbentry
 {
 	int iRat;		//rat identifier
@@ -17,6 +20,7 @@ struct vbentry
 	int tDep;		//time of departure from room
 };
 
+//Rooms
 struct Room
 {
 	int number;		//room number
@@ -24,6 +28,8 @@ struct Room
 	int timeDelay; 	//time delay for room
 };
 
+//state enumeration
+//distinguishes inorder, distributed, nonblocking from each other
 enum State
 {
 	inorder,
@@ -31,19 +37,19 @@ enum State
 	nonblocking
 };
 
-//array of room visitors books
-struct vbentry roomVB [MAXROOMS][MAXRATS];
-
+//global variable
 int rats;
 char *type;
 int startTime;
 int numberOfRooms;
 enum State state;
 
+//global arrays
 struct Room roomArray[MAXROOMS];
 sem_t semArray[MAXROOMS];
 sem_t semArray2[MAXROOMS];
 int visitorCount[MAXROOMS] = {0};
+struct vbentry roomVB [MAXROOMS][MAXRATS];
 
 //function prototypes
 void * rat(void * x);
@@ -52,14 +58,10 @@ void EnterRoom(int iRat, int iRoom);
 
 void * rat(void * x)
 {
-	//TO DO
-	//check capacity using semaphores
-	//use EnterRoom function
-
-
 	if(state == inorder)
 	{
 		int i = 0;
+		//start at room 0 and go inorder
 		for(i = 0; i < numberOfRooms; i++)
 		{
 			//try to enter room
@@ -75,7 +77,8 @@ void * rat(void * x)
 	else if(state == distributed)
 	{
 		int i;
-		for(i = *((int*)(&x)); i < numberOfRooms; i++)
+		//start at rat numbered room
+		for(i = *((int*)(&x)) % numberOfRooms; i < numberOfRooms; i++)
 		{
 			//try to enter room
 			sem_wait(&semArray[i]);
@@ -86,7 +89,8 @@ void * rat(void * x)
 			LeaveRoom(*((int*)(&x)), i, tEntry);
 			sem_post(&semArray[i]);
 		}
-		for(i = 0; i < *((int*)(&x)); i++)
+		//wrap to 0 and finish
+		for(i = 0; i < *((int*)(&x)) % numberOfRooms; i++)
 		{
 			//try to enter room
 			sem_wait(&semArray[i]);
@@ -100,12 +104,40 @@ void * rat(void * x)
 	}
 	else
 	{
-		//nonblocking
-		printf("Nonblocking has not been implemented yet. Sorry. Try again.\n");
-		exit(1);
+		int roomsVisited[numberOfRooms];
+		int numberRoomsVisited = 0;
+		int i;
+		for(i = 0; i < numberOfRooms; i++)
+		{
+			roomsVisited[i] = 0;
+		}
+		while(numberRoomsVisited < numberOfRooms)
+		{
+			for(i = 0; i < numberOfRooms; i++)
+			{
+				if(roomsVisited[i] == 0)
+				{
+					//sem_wait returns 0 if wait succeeds, otherwise does nothing to sem and comes back
+					//other than that, same algorithm as the other two
+					if(sem_trywait(&semArray[i]) == 0)
+					{
+						//enter
+						numberRoomsVisited++;
+						roomsVisited[i] = 1;
+						int tEntry = (int)(time(NULL) - startTime);
+						EnterRoom(*((int*)(&x)), i);
+						
+						//leave room -- leaves entry in visitor book
+						LeaveRoom(*((int*)(&x)), i, tEntry);
+						sem_post(&semArray[i]);
+					}
+				}
+			}
+		}
 	}
 }
 
+//enters room and sleeps for the room's timeDelay
 void EnterRoom(int iRat, int iRoom)
 {
 	if(VERBOSE)
@@ -115,6 +147,7 @@ void EnterRoom(int iRat, int iRoom)
 	sleep(roomArray[iRoom].timeDelay);
 }
 
+//marks the visitor book
 void LeaveRoom(int iRat, int iRoom, int tEnter)
 {
 	if(VERBOSE)
@@ -174,6 +207,8 @@ int main(int argc, char * argv[])
 	else if(strcmp(type, "n") == 0)
 	{
 		state = nonblocking;
+		//printf("Nonblocking is not yet implemented. Sorry, try again.\n");
+		//exit(1);
 	}
 	else
 	{
@@ -208,6 +243,7 @@ int main(int argc, char * argv[])
 		roomArray[numberOfRooms] = room;
 		numberOfRooms++;
 	}
+	//user confirmation
 	printf("You were able to import %d room(s) from the file. Good luck!\n", numberOfRooms);
 
 	//done with the file
@@ -218,9 +254,7 @@ int main(int argc, char * argv[])
 	for(j = 0; j < numberOfRooms; j++)
 	{
 		sem_t semaphore;
-		//sem_t semaphore2;
 		semArray[j] = semaphore;
-		//semArray2[j] = semaphore2;
 	}
 
 	//initialize the semaphores in the array with initial value matching the capacity of each room
@@ -229,7 +263,6 @@ int main(int argc, char * argv[])
 		if(VERBOSE)
 			printf("Initializing a semaphore for room %d with value %d\n", j, roomArray[j].capacity);
 		sem_init(&semArray[j], 0, roomArray[j].capacity);
-		//sem_init(&semArray2[j], 0, 0);
 	}
 
 	//creates and stores rat pthread_ts in an array
@@ -271,6 +304,10 @@ int main(int argc, char * argv[])
 	}
 
 	
+	//statistic variables
+	int totalTime = 0;
+	int idealTime = 0;
+
 	int a, b;
 	//printf time that rats finished maze
 	if(state == inorder)
@@ -280,31 +317,30 @@ int main(int argc, char * argv[])
 			printf("Rat %d completed the maze in %d seconds.\n", a, roomVB[numberOfRooms - 1][a].tDep);
 		}
 	}
-	else if(state == distributed)
+	else
 	{
-		for(a = 0; a < numberOfRooms; a++)
+		//nonblocking
+		for(a = 0; a < rats; a++)
 		{
-			for(b = 0; b < visitorCount[a]; b++)
+			int largestDep = 0;
+			for(b = 0; b < numberOfRooms; b++)
 			{
-				//if we're at the max rooms, look for rat 0
-				if(a == numberOfRooms - 1)
+				int c;
+				for(c = 0; c < visitorCount[b]; c++)
 				{
-					if(roomVB[a][b].iRat == 0 && numberOfRooms > 2)
+					if(a == roomVB[b][c].iRat)
 					{
-						printf("Rat %d completed the maze is %d seconds.\n", roomVB[a][b].iRat, roomVB[a][b].tDep);
+						if(largestDep < roomVB[b][c].tDep)
+						{
+							largestDep = roomVB[b][c].tDep;
+						}
 					}
 				}
-				//otherwise look for the rat number thats one less than the current room
-				else if(roomVB[a][b].iRat - 1 == a)
-				{
-					printf("Rat %d completed the maze is %d seconds.\n", roomVB[a][b].iRat, roomVB[a][b].tDep);;
-				}
 			}
+			totalTime += largestDep;
+			printf("Rat %d completed the maze in %d seconds.\n", a, largestDep);
 		}
 	}
-
-	int totalTime = 0;
-	int idealTime = 0;
 
 	//print visitor book entries
 	for(a = 0; a < numberOfRooms; a++)
@@ -323,7 +359,10 @@ int main(int argc, char * argv[])
 			//calculate total traversal time for distributed
 			else if(state == distributed)
 			{
+				//fix this shit
+				/*
 				//if we're at the max rooms, look for rat 0
+				int c;
 				if(a == numberOfRooms - 1)
 				{
 					if(roomVB[a][b].iRat == 0 && numberOfRooms > 2)
@@ -336,6 +375,7 @@ int main(int argc, char * argv[])
 				{
 					totalTime += roomVB[a][b].tDep;
 				}
+				*/
 			}
 			else
 			{
@@ -345,13 +385,13 @@ int main(int argc, char * argv[])
 			//prints entry
 			printf("%d %d %d; ", roomVB[a][b].iRat, roomVB[a][b].tEntry, roomVB[a][b].tDep);
 		}
+		//readability
 		printf("\n");
+
+		//update ideal time
 		idealTime += roomArray[a].timeDelay;
 	}
 
 	//user sees completion of the simulation with statistics.
-	printf("Simulation completed in %d seconds.\n", (int)(time(NULL) - startTime));
 	printf("Total traversal time: %d seconds, compared to ideal time: %d seconds.\n", totalTime, idealTime * rats);
-
-	//ADD OPTIMAL TIME HERE
 }
