@@ -7,7 +7,7 @@ This project is written in C.
 ## Installation
 make
 ## Usage
-./maze (number of rats) (number of rooms)
+./maze (number of rats) (i for inorder traversal, d for distributed traversal, n for nonblocking traversal)
 ## Credits
 Written by: Jacob Hackett
 ## License
