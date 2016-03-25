@@ -1,0 +1,71 @@
+-------------------------------------------------------------------------------
+CS3013 Operating Systems A 2015 Project 4 PArt 1
+-------------------------------------------------------------------------------
+Date: 10/11/2015
+-------------------------------------------------------------------------------
+Project state:
+
+Part one is fully functional. It prints the number of each type of file,
+including text files and also records the total number of bytes in text files
+and regular files.
+
+Part two is fully functional. It does all part one does but with multiple
+threads and statistics about CPU time and wall clock time.
+-------------------------------------------------------------------------------
+Credits
+	Jacob Hackett (jrhackett@wpi.edu)
+-------------------------------------------------------------------------------
+Project description
+
+This program analyzes files provided through way of stdin. It utilizes the
+stat function and read system call to determine what type of file each is.
+These file types include regular, regular with text, special, and directories.
+It also counts the total number bytes in text and regular files.
+
+This project is extended to multiple threads as well. The performance is
+observed through means of system time, wall clock time, and CPU time. In
+general, performance is better when the max number of threads is lower.
+-------------------------------------------------------------------------------
+Dependencies:
+
+Linux
+Input texts must specify the full path to the file.
+-------------------------------------------------------------------------------
+Documentation
+
+Files are self documented
+-------------------------------------------------------------------------------
+Installation instructions
+
+PART ONE:
+gcc -o partone partone.c
+
+PART TWO:
+gcc -o main main.c -lpthread -std=c99
+-------------------------------------------------------------------------------
+Execution instructions
+
+PART ONE:
+./partone < (input file with paths to files)
+
+OR
+
+ls -1d (path/goes/here)/* | ./partone
+where the path holds the files you would like to use as input
+
+PART TWO:
+./main < (input file with paths to files)
+
+OR
+
+ls -1d (path/goes/here)/* | ./main
+where the path holds the files you would like to use as input
+-------------------------------------------------------------------------------
+Additional Notes
+
+typescript2 shows part one functioning.
+typescript shows part two functioning.
+
+I did not have time to implement the command line argument to switch between
+serial and multithreaded architecure. Please use partone.c for serial and
+main.c for the multi threaded architecture

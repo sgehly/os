@@ -1,0 +1,40 @@
+Script started on Thu 15 Oct 2015 12:02:22 PM EDT
+]0;jacobhackett@Lily: ~/Documents/CS3013/proj4jacobhackett@Lily:~/Documents/CS3013/proj4$ gcc -o main main.c -lpthread -std=c99
+]0;jacobhackett@Lily: ~/Documents/CS3013/proj4jacobhackett@Lily:~/Documents/CS3013/proj4$ ls -1d /dev/* | ./main
+Number of files: 174
+
+Number of bad files: 21
+Number of directories: 16
+Number of regular files: 1
+Number of special files: 158
+Number of bytes for regular files: 140737477877760
+Number of regular files with text: 1
+Number of bytes for regular text files: 140737477877760
+
+Wall clock time: 14823mcs
+System CPU time:12000mcs
+User CPU time: 4000mcs
+]0;jacobhackett@Lily: ~/Documents/CS3013/proj4jacobhackett@Lily:~/Documents/CS3013/proj4$ ls -1d /dev/* | ./main[C[C[1P[1P[1P[1@e[1@t[1@c
+Could not open regular file: /etc/grub.d
+Could not open regular file: /etc/gshadow
+Could not open regular file: /etc/gshadow-
+Could not open regular file: /etc/mtools.conf
+Could not open regular file: /etc/passwd-
+Could not open regular file: /etc/shadow-
+Number of files: 186
+
+Number of bad files: 27
+Number of directories: 110
+Number of regular files: 80
+Number of special files: 0
+Number of bytes for regular files: 147949
+Number of regular files with text: 70
+Number of bytes for regular text files: 137900
+
+Wall clock time: 99002mcs
+System CPU time:24000mcs
+User CPU time: 4000mcs
+]0;jacobhackett@Lily: ~/Documents/CS3013/proj4jacobhackett@Lily:~/Documents/CS3013/proj4$ exit
+exit
+
+Script done on Thu 15 Oct 2015 12:02:55 PM EDT

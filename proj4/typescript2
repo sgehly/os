@@ -1,0 +1,27 @@
+Script started on Tue 13 Oct 2015 09:50:29 AM EDT
+]0;jacobhackett@Lily: ~/Documents/CS3013/proj4jacobhackett@Lily:~/Documents/CS3013/proj4$ exitls /etc/* | ./maindev[C[C[C[C[C[C[C[C[C[C[Cgcc -o main main.c -Wall
+]0;jacobhackett@Lily: ~/Documents/CS3013/proj4jacobhackett@Lily:~/Documents/CS3013/proj4$ gcc -o main main.c -Wallexit[Kls /etc/* | ./maindev[C[C[C[C[C[C[C[C[C[C[C
+ls: cannot open directory /dev/vboxusb: Permission denied
+Number of files: 192
+
+Number of bad files: 326
+Number of directories: 0
+Number of regular files: 1
+Number of special files: 190
+Number of bytes for regular files: 140737477877760
+Number of regular files with text: 0
+Number of bytes for regular text files: 0
+]0;jacobhackett@Lily: ~/Documents/CS3013/proj4jacobhackett@Lily:~/Documents/CS3013/proj4$ ls /dev/* | ./maingcc -o main main.c -Wallexit[Kls /etc/* | ./main
+Number of files: 114
+
+Number of bad files: 1531
+Number of directories: 0
+Number of regular files: 114
+Number of special files: 0
+Number of bytes for regular files: 370575
+Number of regular files with text: 101
+Number of bytes for regular text files: 270932
+]0;jacobhackett@Lily: ~/Documents/CS3013/proj4jacobhackett@Lily:~/Documents/CS3013/proj4$ exit
+exit
+
+Script done on Tue 13 Oct 2015 09:50:38 AM EDT
